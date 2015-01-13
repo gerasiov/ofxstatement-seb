@@ -26,7 +26,10 @@ def validate_workbook(workbook):
 
     sheet = workbook.get_active_sheet()
     try:
-        header = [c.value for c in sheet.rows[0]]
+        # We need only first 5 rows.
+        rows = take(5, sheet.iter_rows())
+
+        header = [c.value for c in rows[0]]
         assert header[0] == 'Privatkonto'
         assert header[1] == 'Saldo'
         assert header[2] == 'Disponibelt belopp'
@@ -34,7 +37,7 @@ def validate_workbook(workbook):
         assert header[4] is None
         assert header[5] is None
 
-        header = [c.value for c in sheet.rows[2]]
+        header = [c.value for c in rows[2]]
         assert header[0].startswith('Datum:')
         assert header[1] is None
         assert header[2] is None
@@ -42,7 +45,7 @@ def validate_workbook(workbook):
         assert header[4] is None
         assert header[5] is None
 
-        header = [c.value for c in sheet.rows[3]]
+        header = [c.value for c in rows[3]]
         assert header[0].startswith('Bokf')  # Bokförings-
         assert header[1].startswith('Valuta-')
         assert header[2].startswith('Verifikations-')
@@ -50,7 +53,7 @@ def validate_workbook(workbook):
         assert header[4] is None
         assert header[5] is None
 
-        header = [c.value for c in sheet.rows[4]]
+        header = [c.value for c in rows[4]]
         assert header[0] is None
         assert header[1] is None
         assert header[2] is None
@@ -72,14 +75,17 @@ class SebStatementParser(StatementParser):
         statement = Statement()
         sheet = self.workbook.get_active_sheet()
 
-        values = [c.value for c in sheet.rows[1]]
+        # We need only first 2 rows here.
+        rows = take(2, sheet.iter_rows())
+
+        values = [c.value for c in rows[1]]
         privatkonto, saldo, disponibelt_belopp, beviljad_kredit, _1, _2 = values
         statement.account_id = privatkonto
         statement.end_balance = float(saldo)
         statement.bank_id = 'SEB'
         statement.currency = 'SEK'  # TODO(get from settings)
 
-        header = sheet.rows[2]
+        header = rows[2]
         date_regexp = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
         m = re.match('^Datum: (%s) - (%s)$' % (date_regexp, date_regexp), header[0].value)
         if m:
@@ -91,7 +97,9 @@ class SebStatementParser(StatementParser):
 
     def split_records(self):
         sheet = self.workbook.get_active_sheet()
-        for row in sheet.rows[5:]:
+
+        # Skip first 5 rows. Headers they are.
+        for row in itertools.islice(sheet.iter_rows(), 5, None):
             yield [c.value for c in row]
 
     def parse_record(self, row):
