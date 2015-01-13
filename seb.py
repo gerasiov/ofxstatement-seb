@@ -103,11 +103,12 @@ class SebStatementParser(StatementParser):
 
         # Skip first 5 rows. Headers they are.
         for row in itertools.islice(sheet.iter_rows(), 5, None):
-            yield [c.value for c in row]
+            yield (c.value for c in row)
 
     def parse_record(self, row):
-        stmt_line = StatementLine()
+        row = take(5, row)
 
+        stmt_line = StatementLine()
         stmt_line.date = self.parse_datetime(row[0])
         _ = self.parse_datetime(row[1])
         stmt_line.id = row[2]
