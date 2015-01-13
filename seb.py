@@ -10,47 +10,51 @@ from ofxstatement.plugin import Plugin
 from ofxstatement.statement import Statement, StatementLine
 
 
+def validate_workbook(workbook):
+    """
+    Naive validation to make sure that xlsx document is structured the way it was
+    when this parser was written.
+    """
+    sheet = workbook.get_active_sheet()
+
+    header = [c.value for c in sheet.rows[0]]
+    assert header[0] == 'Privatkonto'
+    assert header[1] == 'Saldo'
+    assert header[2] == 'Disponibelt belopp'
+    assert header[3] == 'Beviljad kredit'
+    assert header[4] is None
+    assert header[5] is None
+
+    header = [c.value for c in sheet.rows[2]]
+    assert header[0].startswith('Datum:')
+    assert header[1] is None
+    assert header[2] is None
+    assert header[3] is None
+    assert header[4] is None
+    assert header[5] is None
+
+    header = [c.value for c in sheet.rows[3]]
+    assert header[0].startswith('Bokf')  # Bokförings-
+    assert header[1].startswith('Valuta-')
+    assert header[2].startswith('Verifikations-')
+    assert header[3] is None
+    assert header[4] is None
+    assert header[5] is None
+
+    header = [c.value for c in sheet.rows[4]]
+    assert header[0] is None
+    assert header[1] is None
+    assert header[2] is None
+    assert header[3].startswith('Text / mottagare')
+    assert header[4].startswith('Belopp')
+    assert header[5].startswith('Saldo')
+
 class SebStatementParser(StatementParser):
     date_format = '%Y-%m-%d'
 
     def __init__(self, fin):
         self.workbook = load_workbook(filename=fin)
         self.statement = self.parse_statement()
-
-    def validate_workbook(self):
-        sheet = self.workbook.get_active_sheet()
-
-        header = [c.value for c in sheet.rows[0]]
-        assert header[0] == 'Privatkonto'
-        assert header[1] == 'Saldo'
-        assert header[2] == 'Disponibelt belopp'
-        assert header[3] == 'Beviljad kredit'
-        assert header[4] is None
-        assert header[5] is None
-
-        header = [c.value for c in sheet.rows[2]]
-        assert header[0].startswith('Datum:')
-        assert header[1] is None
-        assert header[2] is None
-        assert header[3] is None
-        assert header[4] is None
-        assert header[5] is None
-
-        header = [c.value for c in sheet.rows[3]]
-        assert header[0].startswith('Bokf')  # Bokförings-
-        assert header[1].startswith('Valuta-')
-        assert header[2].startswith('Verifikations-')
-        assert header[3] is None
-        assert header[4] is None
-        assert header[5] is None
-
-        header = [c.value for c in sheet.rows[4]]
-        assert header[0] is None
-        assert header[1] is None
-        assert header[2] is None
-        assert header[3].startswith('Text / mottagare')
-        assert header[4].startswith('Belopp')
-        assert header[5].startswith('Saldo')
 
     def parse_statement(self):
         statement = Statement()
