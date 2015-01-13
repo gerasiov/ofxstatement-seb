@@ -54,6 +54,7 @@ class SebStatementParser(StatementParser):
     date_format = '%Y-%m-%d'
     bank_id = 'SEB'
     currency_id = 'SEK'
+    date_regexp = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
 
     def __init__(self, fin):
         self.workbook = load_workbook(filename=fin, read_only=True)
@@ -75,8 +76,7 @@ class SebStatementParser(StatementParser):
         statement.currency = self.currency_id
 
         header = rows[2]
-        date_regexp = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
-        m = re.match('^Datum: (%s) - (%s)$' % (date_regexp, date_regexp), header[0].value)
+        m = re.match('^Datum: (%s) - (%s)$' % (self.date_regexp, self.date_regexp), header[0].value)
         if m:
             part_from, part_to = m.groups()
             statement.start_date = self.parse_datetime(part_from)
