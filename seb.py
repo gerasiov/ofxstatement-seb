@@ -56,19 +56,24 @@ class SebStatementParser(StatementParser):
     currency_id = 'SEK'
     header_regexp = '^Datum: ([0-9]{4}-[0-9]{2}-[0-9]{2}) - ([0-9]{4}-[0-9]{2}-[0-9]{2})$'
 
-    def __init__(self, fin):
-        self.workbook = load_workbook(filename=fin, read_only=True)
-        validate_workbook(self.workbook)
-        self.statement = self.parse_statement()
+    @staticmethod
+    def create(fin):
+        wb = load_workbook(filename=fin, read_only=True)
+        validate_workbook(wb)
+        return SebStatementParser(wb)
 
-    def parse_statement(self):
+    def __init__(self, workbook):
+        self.workbook = workbook
+        self.statement = self.parse_statement(workbook)
+
+    def parse_statement(self, workbook):
         """
         Parse information from xlxs header that could be used to populate statement.
 
         :return: statment object
         """
         statement = Statement()
-        sheet = self.workbook.get_active_sheet()
+        sheet = workbook.get_active_sheet()
 
         # We need only first 2 rows here.
         rows = take(3, sheet.iter_rows())
@@ -125,4 +130,4 @@ class SebStatementParser(StatementParser):
 
 class SebPlugin(Plugin):
     def get_parser(self, fin):
-        return SebStatementParser(fin)
+        return SebStatementParser.create(fin)
