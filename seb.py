@@ -28,38 +28,24 @@ def validate_workbook(workbook):
     try:
         # We need only first 5 rows.
         rows = take(5, sheet.iter_rows())
+        rows = [[c.value for c in row] for row in rows]
 
-        header = [c.value for c in rows[0]]
-        assert header[0] == 'Privatkonto'
-        assert header[1] == 'Saldo'
-        assert header[2] == 'Disponibelt belopp'
-        assert header[3] == 'Beviljad kredit'
-        assert header[4] is None
-        assert header[5] is None
+        header = rows[0]
+        assert ['Privatkonto', 'Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == header
 
-        header = [c.value for c in rows[2]]
-        assert header[0].startswith('Datum:')
-        assert header[1] is None
-        assert header[2] is None
-        assert header[3] is None
-        assert header[4] is None
-        assert header[5] is None
+        header = rows[2]
+        assert re.match('Datum: ', header[0])
+        assert [None, None, None, None, None] == header[1:]
 
-        header = [c.value for c in rows[3]]
-        assert header[0].startswith('Bokf')  # Bokförings-
-        assert header[1].startswith('Valuta-')
-        assert header[2].startswith('Verifikations-')
-        assert header[3] is None
-        assert header[4] is None
-        assert header[5] is None
+        header = rows[3]
+        assert re.match('Bokförings\- *datum', header[0])
+        assert re.match('Valuta\- *datum', header[1])
+        assert re.match('Verifikations\- *nummer', header[2])
+        assert [None, None, None] == header[3:]
 
-        header = [c.value for c in rows[4]]
-        assert header[0] is None
-        assert header[1] is None
-        assert header[2] is None
-        assert header[3].startswith('Text / mottagare')
-        assert header[4].startswith('Belopp')
-        assert header[5].startswith('Saldo')
+        header = rows[4]
+        assert [None, None, None, 'Text / mottagare', 'Belopp', 'Saldo'] == header
+
     except AssertionError as e:
         raise ValueError(e)
 
