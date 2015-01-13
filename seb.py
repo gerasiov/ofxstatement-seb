@@ -63,6 +63,7 @@ def validate_workbook(workbook):
     except AssertionError as e:
         raise ValueError(e)
 
+
 class SebStatementParser(StatementParser):
     date_format = '%Y-%m-%d'
 
