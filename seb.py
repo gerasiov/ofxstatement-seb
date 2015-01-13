@@ -66,6 +66,8 @@ def validate_workbook(workbook):
 
 class SebStatementParser(StatementParser):
     date_format = '%Y-%m-%d'
+    bank_id = 'SEB'
+    currency_id = 'SEK'
 
     def __init__(self, fin):
         self.workbook = load_workbook(filename=fin, read_only=True)
@@ -83,8 +85,8 @@ class SebStatementParser(StatementParser):
         privatkonto, saldo, disponibelt_belopp, beviljad_kredit, _1, _2 = values
         statement.account_id = privatkonto
         statement.end_balance = float(saldo)
-        statement.bank_id = 'SEB'
-        statement.currency = 'SEK'  # TODO(get from settings)
+        statement.bank_id = self.bank_id
+        statement.currency = self.currency_id
 
         header = rows[2]
         date_regexp = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
