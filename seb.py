@@ -53,7 +53,8 @@ class SebStatementParser(StatementParser):
     date_format = '%Y-%m-%d'
 
     def __init__(self, fin):
-        self.workbook = load_workbook(filename=fin)
+        self.workbook = load_workbook(filename=fin, read_only=True)
+        validate_workbook(self.workbook)
         self.statement = self.parse_statement()
 
     def parse_statement(self):
