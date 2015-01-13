@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import itertools
 
 from datetime import datetime
 from openpyxl import load_workbook
@@ -8,6 +9,11 @@ from openpyxl import load_workbook
 from ofxstatement.parser import StatementParser
 from ofxstatement.plugin import Plugin
 from ofxstatement.statement import Statement, StatementLine
+
+
+def take(n, iterable):
+    """Return first n items of the iterable as a list."""
+    return list(itertools.islice(iterable, n))
 
 
 def validate_workbook(workbook):
