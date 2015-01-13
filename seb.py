@@ -79,7 +79,7 @@ class SebStatementParser(StatementParser):
         sheet = self.workbook.get_active_sheet()
 
         # We need only first 2 rows here.
-        rows = take(2, sheet.iter_rows())
+        rows = take(3, sheet.iter_rows())
 
         values = [c.value for c in rows[1]]
         privatkonto, saldo, disponibelt_belopp, beviljad_kredit, _1, _2 = values
