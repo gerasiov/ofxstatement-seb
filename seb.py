@@ -23,8 +23,8 @@ def validate_workbook(workbook):
 
     :raises ValueError if workbook has invalid format
     """
-    sheet = workbook.get_active_sheet()
 
+    sheet = workbook.get_active_sheet()
     try:
         header = [c.value for c in sheet.rows[0]]
         assert header[0] == 'Privatkonto'
