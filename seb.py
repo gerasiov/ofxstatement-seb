@@ -14,40 +14,45 @@ def validate_workbook(workbook):
     """
     Naive validation to make sure that xlsx document is structured the way it was
     when this parser was written.
+
+    :raises ValueError if workbook has invalid format
     """
     sheet = workbook.get_active_sheet()
 
-    header = [c.value for c in sheet.rows[0]]
-    assert header[0] == 'Privatkonto'
-    assert header[1] == 'Saldo'
-    assert header[2] == 'Disponibelt belopp'
-    assert header[3] == 'Beviljad kredit'
-    assert header[4] is None
-    assert header[5] is None
+    try:
+        header = [c.value for c in sheet.rows[0]]
+        assert header[0] == 'Privatkonto'
+        assert header[1] == 'Saldo'
+        assert header[2] == 'Disponibelt belopp'
+        assert header[3] == 'Beviljad kredit'
+        assert header[4] is None
+        assert header[5] is None
 
-    header = [c.value for c in sheet.rows[2]]
-    assert header[0].startswith('Datum:')
-    assert header[1] is None
-    assert header[2] is None
-    assert header[3] is None
-    assert header[4] is None
-    assert header[5] is None
+        header = [c.value for c in sheet.rows[2]]
+        assert header[0].startswith('Datum:')
+        assert header[1] is None
+        assert header[2] is None
+        assert header[3] is None
+        assert header[4] is None
+        assert header[5] is None
 
-    header = [c.value for c in sheet.rows[3]]
-    assert header[0].startswith('Bokf')  # Bokförings-
-    assert header[1].startswith('Valuta-')
-    assert header[2].startswith('Verifikations-')
-    assert header[3] is None
-    assert header[4] is None
-    assert header[5] is None
+        header = [c.value for c in sheet.rows[3]]
+        assert header[0].startswith('Bokf')  # Bokförings-
+        assert header[1].startswith('Valuta-')
+        assert header[2].startswith('Verifikations-')
+        assert header[3] is None
+        assert header[4] is None
+        assert header[5] is None
 
-    header = [c.value for c in sheet.rows[4]]
-    assert header[0] is None
-    assert header[1] is None
-    assert header[2] is None
-    assert header[3].startswith('Text / mottagare')
-    assert header[4].startswith('Belopp')
-    assert header[5].startswith('Saldo')
+        header = [c.value for c in sheet.rows[4]]
+        assert header[0] is None
+        assert header[1] is None
+        assert header[2] is None
+        assert header[3].startswith('Text / mottagare')
+        assert header[4].startswith('Belopp')
+        assert header[5].startswith('Saldo')
+    except AssertionError as e:
+        raise ValueError(e)
 
 class SebStatementParser(StatementParser):
     date_format = '%Y-%m-%d'
