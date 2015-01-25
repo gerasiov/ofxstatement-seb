@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import seb
 import os.path
 
 from ofxstatement.ofx import OfxWriter
+from ofxstatement.plugins import seb
 
 
 def main(args=None):
