@@ -1,7 +1,13 @@
 language: python
 python: 3.4
+env:
+  - TOX_ENV=test
+install:
+  - pip install tox
 script:
-  - nosetests -v
+  - tox -e $TOX_ENV
+after_success:
+  - tox -e coverage
 notifications:
   email:
     on_success: change
