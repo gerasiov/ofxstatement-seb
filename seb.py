@@ -69,7 +69,7 @@ class SebStatementParser(StatementParser):
 
     def parse_statement(self, workbook):
         """
-        Parse information from xlxs header that could be used to populate statement.
+        Parse information from xlsx header that could be used to populate statement.
 
         :return: statment object
         """
