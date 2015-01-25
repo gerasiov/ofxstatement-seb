@@ -111,6 +111,7 @@ class SebStatementParser(StatementParser):
         stmt_line.date = self.parse_datetime(row[0])
         _ = self.parse_datetime(row[1])
         stmt_line.id = row[2]
+        stmt_line.refnum = row[2]
         stmt_line.memo = row[3]
         stmt_line.amount = row[4]
 
