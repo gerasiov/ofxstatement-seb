@@ -14,6 +14,7 @@ def main(args=None):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument('path', help='path to the xlsx file')
+    parser.add_argument('--dump', action='store_true', help='print statements')
     opts = parser.parse_args(args)
 
     input_file = opts.path
@@ -21,6 +22,11 @@ def main(args=None):
     output_file = root + '.ofx'
     parser = seb.SebPlugin(None, None).get_parser(opts.path)
     statement = parser.parse()
+
+    if opts.dump:
+        for line in statement.lines:
+            print(line)
+        return
     with open(output_file, 'w') as out:
         writer = OfxWriter(statement)
         out.write(writer.toxml())
