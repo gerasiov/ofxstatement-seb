@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from setuptools import find_packages
 from distutils.core import setup
 
 version = '1.0.0'
@@ -26,7 +25,7 @@ setup(name='ofxstatement-seb',
           'Environment :: Console',
           'Operating System :: OS Independent'
       ],
-      packages=find_packages('.'),
+      packages=['ofxstatement', 'ofxstatement.plugins'],
       namespace_packages=['ofxstatement', 'ofxstatement.plugins'],
       install_requires=['ofxstatement'],
       test_suite='ofxstatement.plugins.tests',
