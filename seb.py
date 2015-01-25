@@ -31,7 +31,8 @@ def validate_workbook(workbook):
         rows = [[c.value for c in row] for row in rows]
 
         header = rows[0]
-        assert ['Privatkonto', 'Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == header
+        assert len(header[0])
+        assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == header[1:]
 
         header = rows[2]
         assert re.match(SebStatementParser.header_regexp, header[0])
