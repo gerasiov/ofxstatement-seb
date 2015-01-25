@@ -10,7 +10,7 @@ with open('README.rst') as f:
 setup(name='ofxstatement-seb',
       version=version,
       author='Alexander Krasnukhin',
-      author_email='',
+      author_email='the.malkolm@gmail.com',
       url='https://github.com/themalkolm/ofxstatement-seb',
       description=('ofxstatement plugins for SEB'),
       long_description=long_description,
