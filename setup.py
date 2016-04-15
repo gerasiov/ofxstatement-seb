@@ -27,6 +27,9 @@ setup(name='ofxstatement-seb',
       ],
       packages=['ofxstatement', 'ofxstatement.plugins'],
       namespace_packages=['ofxstatement', 'ofxstatement.plugins'],
+      entry_points={
+          'ofxstatement': ['seb = ofxstatement.plugins.seb:SebPlugin']
+      },
       install_requires=['ofxstatement'],
       test_suite='ofxstatement.plugins.tests',
       include_package_data=True,
