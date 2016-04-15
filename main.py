@@ -31,5 +31,6 @@ def main(args=None):
         writer = OfxWriter(statement)
         out.write(writer.toxml())
 
+
 if __name__ == '__main__':
     main()

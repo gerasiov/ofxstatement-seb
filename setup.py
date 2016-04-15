@@ -14,7 +14,7 @@ setup(name='ofxstatement-seb',
       url='https://github.com/themalkolm/ofxstatement-seb',
       description=('ofxstatement plugins for SEB'),
       long_description=long_description,
-      license = 'Apache License 2.0',
+      license='Apache License 2.0',
       keywords=['ofx', 'ofxstatement', 'seb'],
       classifiers=[
           'Development Status :: 3 - Alpha',
@@ -31,5 +31,4 @@ setup(name='ofxstatement-seb',
       test_suite='ofxstatement.plugins.tests',
       include_package_data=True,
       zip_safe=True
-)
-
+      )
