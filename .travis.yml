@@ -2,7 +2,6 @@ language: python
 python: 3.5
 script:
   - python setup.py install
-  - ofxstatement list-plugins | grep seb
 notifications:
   email:
     on_success: change
