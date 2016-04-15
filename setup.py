@@ -32,3 +32,4 @@ setup(name='ofxstatement-seb',
       include_package_data=True,
       zip_safe=True
 )
+
