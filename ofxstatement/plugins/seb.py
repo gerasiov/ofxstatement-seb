@@ -73,6 +73,7 @@ class SebStatementParser(StatementParser):
 
         :return: statment object
         """
+
         statement = Statement()
         sheet = workbook.get_active_sheet()
 
