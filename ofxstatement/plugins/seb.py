@@ -2,6 +2,7 @@
 
 import re
 import itertools
+import logging
 
 from datetime import datetime
 from openpyxl import load_workbook
@@ -35,17 +36,26 @@ def validate_workbook(workbook):
         assert len(header[0])
         assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == header[1:]
 
-        header = rows[2]
+        accounts = 1
+        while not re.match(SebStatementParser.header_regexp, rows[accounts][0]):
+            account_id = rows[accounts][0]
+            logging.info('Detected account: %s' % account_id)
+            accounts += 1
+        logging.info('Total (%s) accounts detected.' % accounts)
+
+        offset = 0 + accounts + 1
+
+        header = rows[offset]
         assert re.match(SebStatementParser.header_regexp, header[0])
         assert [None, None, None, None, None] == header[1:]
 
-        header = rows[3]
+        header = rows[offset + 1]
         assert re.match('^Bokförings\- *datum$', header[0])
         assert re.match('^Valuta\- *datum$', header[1])
         assert re.match('^Verifikations\- *nummer$', header[2])
         assert [None, None, None] == header[3:]
 
-        header = rows[4]
+        header = rows[offset + 2]
         assert [None, None, None, 'Text / mottagare', 'Belopp', 'Saldo'] == header
 
     except AssertionError as e:

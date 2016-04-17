@@ -3,6 +3,7 @@
 
 import os.path
 import click
+import logging
 
 from ofxstatement.ofx import OfxWriter
 from ofxstatement.plugins import seb
@@ -13,6 +14,8 @@ from ofxstatement.plugins import seb
 @click.option('--debug', is_flag=True, default=False)
 def convert(path, debug):
     """Parse and print transactions from SEB Export.xlsx file."""
+
+    logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
 
     root, ext = os.path.splitext(path)
     output_file = root + '.ofx'
