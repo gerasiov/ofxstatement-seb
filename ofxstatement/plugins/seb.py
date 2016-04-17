@@ -26,9 +26,8 @@ def validate_workbook(workbook):
 
     sheet = workbook.active
     try:
-        # We need only first 5 rows.
         rows = take(5, sheet.iter_rows())
-        assert len(rows) == 5
+        assert len(rows) == 5, 'Sheet should have at least 5 rows.'
 
         rows = [[c.value for c in row] for row in rows]
 
