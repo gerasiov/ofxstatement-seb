@@ -27,36 +27,46 @@ def validate_workbook(workbook):
 
     sheet = workbook.active
     try:
+        logging.info('Checking that sheet has at least 5 rows.')
         rows = take(5, sheet.iter_rows())
-        assert len(rows) == 5, 'Sheet should have at least 5 rows.'
+        assert len(rows) == 5
 
+        logging.info('Extracting values for every cell.')
         rows = [[c.value for c in row] for row in rows]
 
-        header = rows[0]
-        assert len(header[0])
-        assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == header[1:]
+        logging.info('Verifying summary header.')
+        row = rows[0]
+        assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == row[1:]
 
-        accounts = 1
-        while not re.match(SebStatementParser.header_regexp, rows[accounts][0]):
-            account_id = rows[accounts][0]
+        logging.info('Detecting accounts.')
+        accounts = 0
+        idx = 1
+        while not re.match(SebStatementParser.header_regexp, rows[idx][0]):
+            account_id = rows[idx][0]
             logging.info('Detected account: %s' % account_id)
             accounts += 1
+            idx += 1
         logging.info('Total (%s) accounts detected.' % accounts)
 
-        offset = 0 + accounts + 1
+        logging.info('Verifying summary footer.')
+        row = rows[idx]
+        assert re.match(SebStatementParser.header_regexp, row[0])
+        assert [None, None, None, None, None] == row[1:]
+        idx += 1
 
-        header = rows[offset]
-        assert re.match(SebStatementParser.header_regexp, header[0])
-        assert [None, None, None, None, None] == header[1:]
+        logging.info('Skipping empty/padding row.')
+        row = rows[idx]
+        assert [None, None, None, None, None, None] == row
+        idx += 1
 
-        header = rows[offset + 1]
-        assert re.match('^Bokförings\- *datum$', header[0])
-        assert re.match('^Valuta\- *datum$', header[1])
-        assert re.match('^Verifikations\- *nummer$', header[2])
-        assert [None, None, None] == header[3:]
-
-        header = rows[offset + 2]
-        assert [None, None, None, 'Text / mottagare', 'Belopp', 'Saldo'] == header
+        logging.info('Verifying statements header.')
+        row = rows[idx]
+        assert re.match('^Bokföringsdatum$', row[0])
+        assert re.match('^Valutadatum$', row[1])
+        assert re.match('^Verifikationsnummer$', row[2])
+        assert re.match('^Text / mottagare$', row[3])
+        assert re.match('^Belopp$', row[4])
+        assert re.match('^Saldo$', row[5])
 
     except AssertionError as e:
         raise ValueError(e)
