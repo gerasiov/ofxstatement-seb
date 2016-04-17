@@ -24,7 +24,7 @@ def validate_workbook(workbook):
     :raises ValueError if workbook has invalid format
     """
 
-    sheet = workbook.get_active_sheet()
+    sheet = workbook.active
     try:
         # We need only first 5 rows.
         rows = take(5, sheet.iter_rows())
@@ -75,7 +75,7 @@ class SebStatementParser(StatementParser):
         """
 
         statement = Statement()
-        sheet = workbook.get_active_sheet()
+        sheet = workbook.active
 
         # We need only first 2 rows here.
         rows = take(3, sheet.iter_rows())
@@ -98,7 +98,7 @@ class SebStatementParser(StatementParser):
         return statement
 
     def split_records(self):
-        sheet = self.workbook.get_active_sheet()
+        sheet = self.workbook.active
 
         # Skip first 5 rows. Headers they are.
         for row in itertools.islice(sheet.iter_rows(), 5, None):
