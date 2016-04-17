@@ -17,7 +17,7 @@ def convert(path, debug):
     root, ext = os.path.splitext(path)
     output_file = root + '.ofx'
 
-    parser = seb.SebPlugin(None, None).get_parser(path)
+    parser = seb.SebPlugin(ui=None, settings=None).get_parser(path)
     statement = parser.parse()
 
     if debug:
