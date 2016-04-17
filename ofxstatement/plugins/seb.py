@@ -28,6 +28,8 @@ def validate_workbook(workbook):
     try:
         # We need only first 5 rows.
         rows = take(5, sheet.iter_rows())
+        assert len(rows) == 5
+
         rows = [[c.value for c in row] for row in rows]
 
         header = rows[0]
