@@ -12,7 +12,7 @@ from ofxstatement.plugins import seb
 @click.argument('path')
 @click.option('--debug', is_flag=True, default=False)
 def convert(path, debug):
-    """Parse and print transactions from SEB export xlsx file."""
+    """Parse and print transactions from SEB Export.xlsx file."""
 
     root, ext = os.path.splitext(path)
     output_file = root + '.ofx'
