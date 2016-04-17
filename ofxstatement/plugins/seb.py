@@ -68,6 +68,8 @@ def validate_workbook(workbook):
         assert re.match('^Belopp$', row[4])
         assert re.match('^Saldo$', row[5])
 
+        logging.info('Everything is OK!')
+
     except AssertionError as e:
         raise ValueError(e)
 
