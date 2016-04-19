@@ -9,7 +9,7 @@ from openpyxl import load_workbook
 
 from ofxstatement.parser import StatementParser
 from ofxstatement.plugin import Plugin
-from ofxstatement.statement import Statement, StatementLine
+from ofxstatement.statement import Statement, StatementLine, generate_transaction_id
 
 
 def take(n, iterable):
@@ -151,6 +151,7 @@ class SebStatementParser(StatementParser):
             stmt_line.memo, date_string = m.groups()
             stmt_line.date_user = datetime.strptime(date_string, '%y-%m-%d')
 
+        stmt_line.id = generate_transaction_id(stmt_line)
         return stmt_line
 
 
