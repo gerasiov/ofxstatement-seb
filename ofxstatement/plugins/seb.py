@@ -47,6 +47,7 @@ def validate_workbook(workbook):
             accounts += 1
             idx += 1
         logging.info('Total (%s) accounts detected.' % accounts)
+        assert accounts == 1
 
         logging.info('Verifying summary footer.')
         row = rows[idx]
@@ -133,8 +134,7 @@ class SebStatementParser(StatementParser):
 
         stmt_line = StatementLine()
         stmt_line.date = self.parse_datetime(row[0])
-        _ = self.parse_datetime(row[1])
-        stmt_line.id = row[2]
+        _ = self.parse_datetime(row[1])  # TODO: ???
         stmt_line.refnum = row[2]
         stmt_line.memo = row[3]
         stmt_line.amount = row[4]
