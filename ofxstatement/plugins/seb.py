@@ -64,12 +64,12 @@ class SebStatementParser(StatementParser):
         rows = [[c.value for c in row] for row in rows]
 
         logging.info('Verifying summary header.')
-        row = rows[0]
-        assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == row[1:]
+        summary_header_row = rows[0]
+        assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == summary_header_row[1:]
 
-        logging.info('Detecting accounts.')
-        accounts = 0
-        idx = 1
+        logging.info('Getting account id.')
+        summary_account_row = rows[1]
+        account_id = summary_account_row[0]
 
         def is_footer(row):
             for r in self.footer_regexps:
@@ -77,33 +77,23 @@ class SebStatementParser(StatementParser):
                     return True
             return False
 
-        while not is_footer(rows[idx]):
-            account_id = rows[idx][0]
-            logging.info('Detected account: %s' % account_id)
-            accounts += 1
-            idx += 1
-        logging.info('Total (%s) accounts detected.' % accounts)
-        assert accounts == 1
-
         logging.info('Verifying summary footer.')
-        row = rows[idx]
-        assert is_footer(row)
-        assert [None, None, None, None, None] == row[1:]
-        idx += 1
+        summary_footer_row = rows[2]
+        assert is_footer(summary_footer_row)
+        assert [None, None, None, None, None] == summary_footer_row[1:]
 
         logging.info('Skipping empty/padding row.')
-        row = rows[idx]
-        assert [None, None, None, None, None, None] == row
-        idx += 1
+        empty_row = rows[3]
+        assert [None, None, None, None, None, None] == empty_row
 
         logging.info('Verifying statements header.')
-        row = rows[idx]
-        assert re.match('^Bokföringsdatum$', row[0])
-        assert re.match('^Valutadatum$', row[1])
-        assert re.match('^Verifikationsnummer$', row[2])
-        assert re.match('^Text / mottagare$', row[3])
-        assert re.match('^Belopp$', row[4])
-        assert re.match('^Saldo$', row[5])
+        statement_header_row = rows[4]
+        assert re.match('^Bokföringsdatum$', statement_header_row[0])
+        assert re.match('^Valutadatum$', statement_header_row[1])
+        assert re.match('^Verifikationsnummer$', statement_header_row[2])
+        assert re.match('^Text / mottagare$', statement_header_row[3])
+        assert re.match('^Belopp$', statement_header_row[4])
+        assert re.match('^Saldo$', statement_header_row[5])
 
         logging.info('Everything is OK!')
 
