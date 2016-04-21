@@ -141,8 +141,7 @@ class SebStatementParser(StatementParser):
 
         # Skip first 5 rows. Headers they are.
         for row in itertools.islice(sheet.iter_rows(), 5, None):
-            # Row is potentially big so we yield generator.
-            yield (c.value for c in row)
+            yield [c.value for c in row]
 
     def parse_record(self, row):
         row = take(5, row)
