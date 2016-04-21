@@ -17,81 +17,84 @@ def take(n, iterable):
     return list(itertools.islice(iterable, n))
 
 
-def validate_workbook(workbook):
-    """
-    Naive validation to make sure that xlsx document is structured the way it was
-    when this parser was written.
-
-    :raises ValueError if workbook has invalid format
-    """
-
-    sheet = workbook.active
-    try:
-        logging.info('Checking that sheet has at least 5 rows.')
-        rows = take(5, sheet.iter_rows())
-        assert len(rows) == 5
-
-        logging.info('Extracting values for every cell.')
-        rows = [[c.value for c in row] for row in rows]
-
-        logging.info('Verifying summary header.')
-        row = rows[0]
-        assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == row[1:]
-
-        logging.info('Detecting accounts.')
-        accounts = 0
-        idx = 1
-        while not re.match(SebStatementParser.header_regexp, rows[idx][0]):
-            account_id = rows[idx][0]
-            logging.info('Detected account: %s' % account_id)
-            accounts += 1
-            idx += 1
-        logging.info('Total (%s) accounts detected.' % accounts)
-        assert accounts == 1
-
-        logging.info('Verifying summary footer.')
-        row = rows[idx]
-        assert re.match(SebStatementParser.header_regexp, row[0])
-        assert [None, None, None, None, None] == row[1:]
-        idx += 1
-
-        logging.info('Skipping empty/padding row.')
-        row = rows[idx]
-        assert [None, None, None, None, None, None] == row
-        idx += 1
-
-        logging.info('Verifying statements header.')
-        row = rows[idx]
-        assert re.match('^Bokföringsdatum$', row[0])
-        assert re.match('^Valutadatum$', row[1])
-        assert re.match('^Verifikationsnummer$', row[2])
-        assert re.match('^Text / mottagare$', row[3])
-        assert re.match('^Belopp$', row[4])
-        assert re.match('^Saldo$', row[5])
-
-        logging.info('Everything is OK!')
-
-    except AssertionError as e:
-        raise ValueError(e)
-
-
 class SebStatementParser(StatementParser):
     date_format = '%Y-%m-%d'
     bank_id = 'SEB'
     currency_id = 'SEK'
     header_regexp = '^Datum: ([0-9]{4}-[0-9]{2}-[0-9]{2}) - ([0-9]{4}-[0-9]{2}-[0-9]{2})$'
 
-    @staticmethod
-    def create(fin):
-        wb = load_workbook(filename=fin, read_only=True)
-        validate_workbook(wb)
-        return SebStatementParser(wb)
+    def __init__(self, fin, clean=False):
+        """
+        Create a new SebStatementParser instance.
 
-    def __init__(self, workbook):
-        self.workbook = workbook
-        self.statement = self.parse_statement(workbook)
+        :param fin: filename to create parser for
+        :param clean: whenever to attempt to clean description
+        """
 
-    def parse_statement(self, workbook):
+        self.workbook = load_workbook(filename=fin, read_only=True)
+        self.clean = clean
+
+        self.validate()
+        self.statement = self.parse_statement()
+
+    def validate(self):
+        """
+        Naive validation to make sure that xlsx document is structured the way it was
+        when this parser was written.
+
+        :raises ValueError if workbook has invalid format
+        """
+
+        sheet = self.workbook.active
+        try:
+            logging.info('Checking that sheet has at least 5 rows.')
+            rows = take(5, sheet.iter_rows())
+            assert len(rows) == 5
+
+            logging.info('Extracting values for every cell.')
+            rows = [[c.value for c in row] for row in rows]
+
+            logging.info('Verifying summary header.')
+            row = rows[0]
+            assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == row[1:]
+
+            logging.info('Detecting accounts.')
+            accounts = 0
+            idx = 1
+            while not re.match(SebStatementParser.header_regexp, rows[idx][0]):
+                account_id = rows[idx][0]
+                logging.info('Detected account: %s' % account_id)
+                accounts += 1
+                idx += 1
+            logging.info('Total (%s) accounts detected.' % accounts)
+            assert accounts == 1
+
+            logging.info('Verifying summary footer.')
+            row = rows[idx]
+            assert re.match(SebStatementParser.header_regexp, row[0])
+            assert [None, None, None, None, None] == row[1:]
+            idx += 1
+
+            logging.info('Skipping empty/padding row.')
+            row = rows[idx]
+            assert [None, None, None, None, None, None] == row
+            idx += 1
+
+            logging.info('Verifying statements header.')
+            row = rows[idx]
+            assert re.match('^Bokföringsdatum$', row[0])
+            assert re.match('^Valutadatum$', row[1])
+            assert re.match('^Verifikationsnummer$', row[2])
+            assert re.match('^Text / mottagare$', row[3])
+            assert re.match('^Belopp$', row[4])
+            assert re.match('^Saldo$', row[5])
+
+            logging.info('Everything is OK!')
+
+        except AssertionError as e:
+            raise ValueError(e)
+
+    def parse_statement(self):
         """
         Parse information from xlsx header that could be used to populate statement.
 
@@ -99,7 +102,7 @@ class SebStatementParser(StatementParser):
         """
 
         statement = Statement()
-        sheet = workbook.active
+        sheet = self.workbook.active
 
         # We need only first 2 rows here.
         rows = take(3, sheet.iter_rows())
@@ -146,10 +149,11 @@ class SebStatementParser(StatementParser):
         #
         # P.S. Wirströms Irish Pub is our favorite pub in Stockholm.
         #
-        m = re.match('(.*)/([0-9]{2}-[0-9]{2}-[0-9]{2})$', stmt_line.memo)
-        if m:
-            stmt_line.memo, date_string = m.groups()
-            stmt_line.date_user = datetime.strptime(date_string, '%y-%m-%d')
+        if self.clean:
+            m = re.match('(.*)/([0-9]{2}-[0-9]{2}-[0-9]{2})$', stmt_line.memo)
+            if m:
+                stmt_line.memo, date_string = m.groups()
+                stmt_line.date_user = datetime.strptime(date_string, '%y-%m-%d')
 
         stmt_line.id = generate_transaction_id(stmt_line)
         return stmt_line
@@ -157,4 +161,4 @@ class SebStatementParser(StatementParser):
 
 class SebPlugin(Plugin):
     def get_parser(self, fin):
-        return SebStatementParser.create(fin)
+        return SebStatementParser(fin)
