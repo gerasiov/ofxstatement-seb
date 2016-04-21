@@ -25,6 +25,8 @@ make every transaction description unique.
 Example
 =======
 
+.. code-block::
+
     [seb]
     plugin = seb
     brief = 1
