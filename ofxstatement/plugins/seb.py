@@ -108,7 +108,7 @@ class SebStatementParser(StatementParser):
         statement = Statement()
         sheet = self.workbook.active
 
-        # We need only first 2 rows here.
+        # We need only first 3 rows here.
         rows = take(3, sheet.iter_rows())
         rows = [[c.value for c in row] for row in rows]
 
