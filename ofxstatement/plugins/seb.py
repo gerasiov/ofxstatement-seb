@@ -147,7 +147,7 @@ class SebStatementParser(StatementParser):
         # within e.g. 'WIRSTRÖMS PU/14-12-31' and it means that description is 'WIRSTRÖMS PU' while the actual
         # card operation is 2014-12-31.
         #
-        # P.S. Wirströms Irish Pub is our favorite pub in Stockholm.
+        # P.S. Wirströms Irish Pub is our favorite pub in Stockholm: http://www.wirstromspub.se
         #
         m = re.match('(.*)/([0-9]{2}-[0-9]{2}-[0-9]{2})$', stmt_line.memo)
         if m:
