@@ -22,7 +22,8 @@ Why? This way similar transactions will have similar descriptions and it will al
 group transactions using simple text grouping. Otherwise date suffixes will prevent this and
 make every transaction description unique.
 
-Sample configuration file::
+Example
+=======
 
     [seb]
     plugin = seb
