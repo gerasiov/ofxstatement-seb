@@ -76,6 +76,7 @@ class SebStatementParser(StatementParser):
         summary_account_row = rows[1]
         account_id = summary_account_row[0]
         assert re.match('^[0-9]+$', account_id)
+        assert [None, None] == summary_account_row[-2:]
 
         def is_footer(row):
             for r in self.footer_regexps:
