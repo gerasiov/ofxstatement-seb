@@ -21,7 +21,10 @@ class SebStatementParser(StatementParser):
     date_format = '%Y-%m-%d'
     bank_id = 'SEB'
     currency_id = 'SEK'
-    header_regexp = '^Datum: ([0-9]{4}-[0-9]{2}-[0-9]{2}) - ([0-9]{4}-[0-9]{2}-[0-9]{2})$'
+    footer_regexps = [
+        '^Datum:  -',
+        '^Datum: ([0-9]{4}-[0-9]{2}-[0-9]{2}) - ([0-9]{4}-[0-9]{2}-[0-9]{2})$'
+    ]
 
     def __init__(self, fin, brief=False):
         """
@@ -61,7 +64,14 @@ class SebStatementParser(StatementParser):
             logging.info('Detecting accounts.')
             accounts = 0
             idx = 1
-            while not re.match(SebStatementParser.header_regexp, rows[idx][0]):
+
+            def is_footer(row):
+                for r in self.footer_regexps:
+                    if re.match(r, row[0]):
+                        return True
+                return False
+
+            while not is_footer(rows[idx]):
                 account_id = rows[idx][0]
                 logging.info('Detected account: %s' % account_id)
                 accounts += 1
@@ -71,7 +81,7 @@ class SebStatementParser(StatementParser):
 
             logging.info('Verifying summary footer.')
             row = rows[idx]
-            assert re.match(SebStatementParser.header_regexp, row[0])
+            assert is_footer(row)
             assert [None, None, None, None, None] == row[1:]
             idx += 1
 
@@ -108,19 +118,21 @@ class SebStatementParser(StatementParser):
         rows = take(3, sheet.iter_rows())
         rows = [[c.value for c in row] for row in rows]
 
-        values = rows[1]
-        privatkonto, saldo, disponibelt_belopp, beviljad_kredit, _1, _2 = values
-        statement.account_id = privatkonto
+        assert len(rows) == 3
+        header, values, footer = rows
+
+        account_id, saldo, disponibelt_belopp, beviljad_kredit, _1, _2 = values
+        statement.account_id = account_id
         statement.end_balance = float(saldo)
         statement.bank_id = self.bank_id
         statement.currency = self.currency_id
 
-        header = rows[2]
-        m = re.match(self.header_regexp, header[0])
-        if m:
-            part_from, part_to = m.groups()
-            statement.start_date = self.parse_datetime(part_from)
-            statement.end_date = self.parse_datetime(part_to)
+        for r in self.footer_regexps:
+            m = re.match(r, footer[0])
+            if m and m.groups():
+                part_from, part_to = m.groups()
+                statement.start_date = self.parse_datetime(part_from)
+                statement.end_date = self.parse_datetime(part_to)
 
         return statement
 
