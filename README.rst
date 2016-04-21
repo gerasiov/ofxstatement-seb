@@ -8,3 +8,18 @@ It is a plugin for `ofxstatement`_.
 
 .. _SEB: http://seb.se
 .. _ofxstatement: https://github.com/kedder/ofxstatement
+
+Configuration
+=============
+
+There is only one configuration option ``brief``. Turn it on if you want to parse description
+and replace it with the actuall card description while stripping off any know additional
+data e.g:
+
+``WIRSTRÖMS PU/14-12-31`` -> ``WIRSTRÖMS PU``
+
+Sample configuration file::
+
+    [seb]
+    plugin = seb
+    brief = 1
