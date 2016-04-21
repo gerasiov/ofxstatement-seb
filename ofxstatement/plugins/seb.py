@@ -67,9 +67,10 @@ class SebStatementParser(StatementParser):
         summary_header_row = rows[0]
         assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == summary_header_row[1:]
 
-        logging.info('Getting account id.')
+        logging.info('Verifying account id.')
         summary_account_row = rows[1]
         account_id = summary_account_row[0]
+        assert re.match('^[0-9]+$', account_id)
 
         def is_footer(row):
             for r in self.footer_regexps:
