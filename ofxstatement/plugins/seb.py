@@ -105,12 +105,6 @@ class SebStatementParser(StatementParser):
             raise ValueError(e)
 
     def parse_statement(self):
-        """
-        Parse information from xlsx header that could be used to populate statement.
-
-        :return: statment object
-        """
-
         statement = Statement()
         sheet = self.workbook.active
 
