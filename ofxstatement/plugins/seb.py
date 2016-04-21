@@ -113,16 +113,16 @@ class SebStatementParser(StatementParser):
         rows = [[c.value for c in row] for row in rows]
 
         assert len(rows) == 3
-        header, values, footer = rows
+        header_row, account_row, footer_row = rows
 
-        account_id, saldo, disponibelt_belopp, beviljad_kredit, _1, _2 = values
+        account_id, saldo, disponibelt_belopp, beviljad_kredit, _1, _2 = account_row
         statement.account_id = account_id
         statement.end_balance = float(saldo)
         statement.bank_id = self.bank_id
         statement.currency = self.currency_id
 
         for r in self.footer_regexps:
-            m = re.match(r, footer[0])
+            m = re.match(r, footer_row[0])
             if m and m.groups():
                 part_from, part_to = m.groups()
                 statement.start_date = self.parse_datetime(part_from)
