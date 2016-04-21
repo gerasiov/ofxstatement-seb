@@ -162,4 +162,7 @@ class SebStatementParser(StatementParser):
 
 class SebPlugin(Plugin):
     def get_parser(self, fin):
-        return SebStatementParser(fin)
+        kwargs = {}
+        if self.settings:
+            kwargs['brief'] = self.settings.get('brief', False)
+        return SebStatementParser(fin, **kwargs)
