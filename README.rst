@@ -18,6 +18,10 @@ data e.g:
 
 ``WIRSTRÖMS PU/14-12-31`` -> ``WIRSTRÖMS PU``
 
+Why? This way similar transactions will have similar descriptions and it will allow you to
+group transactions using simple text grouping. Otherwise date suffixes will prevent this and
+make every transaction description unique.
+
 Sample configuration file::
 
     [seb]
