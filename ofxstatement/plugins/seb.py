@@ -48,61 +48,64 @@ class SebStatementParser(StatementParser):
         :raises ValueError if workbook has invalid format
         """
 
-        sheet = self.workbook.active
         try:
-            logging.info('Checking that sheet has at least 5 rows.')
-            rows = take(5, sheet.iter_rows())
-            assert len(rows) == 5
-
-            logging.info('Extracting values for every cell.')
-            rows = [[c.value for c in row] for row in rows]
-
-            logging.info('Verifying summary header.')
-            row = rows[0]
-            assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == row[1:]
-
-            logging.info('Detecting accounts.')
-            accounts = 0
-            idx = 1
-
-            def is_footer(row):
-                for r in self.footer_regexps:
-                    if re.match(r, row[0]):
-                        return True
-                return False
-
-            while not is_footer(rows[idx]):
-                account_id = rows[idx][0]
-                logging.info('Detected account: %s' % account_id)
-                accounts += 1
-                idx += 1
-            logging.info('Total (%s) accounts detected.' % accounts)
-            assert accounts == 1
-
-            logging.info('Verifying summary footer.')
-            row = rows[idx]
-            assert is_footer(row)
-            assert [None, None, None, None, None] == row[1:]
-            idx += 1
-
-            logging.info('Skipping empty/padding row.')
-            row = rows[idx]
-            assert [None, None, None, None, None, None] == row
-            idx += 1
-
-            logging.info('Verifying statements header.')
-            row = rows[idx]
-            assert re.match('^Bokföringsdatum$', row[0])
-            assert re.match('^Valutadatum$', row[1])
-            assert re.match('^Verifikationsnummer$', row[2])
-            assert re.match('^Text / mottagare$', row[3])
-            assert re.match('^Belopp$', row[4])
-            assert re.match('^Saldo$', row[5])
-
-            logging.info('Everything is OK!')
-
+            self._validate()
         except AssertionError as e:
             raise ValueError(e)
+
+    def _validate(self):
+        sheet = self.workbook.active
+
+        logging.info('Checking that sheet has at least 5 rows.')
+        rows = take(5, sheet.iter_rows())
+        assert len(rows) == 5
+
+        logging.info('Extracting values for every cell.')
+        rows = [[c.value for c in row] for row in rows]
+
+        logging.info('Verifying summary header.')
+        row = rows[0]
+        assert ['Saldo', 'Disponibelt belopp', 'Beviljad kredit', None, None] == row[1:]
+
+        logging.info('Detecting accounts.')
+        accounts = 0
+        idx = 1
+
+        def is_footer(row):
+            for r in self.footer_regexps:
+                if re.match(r, row[0]):
+                    return True
+            return False
+
+        while not is_footer(rows[idx]):
+            account_id = rows[idx][0]
+            logging.info('Detected account: %s' % account_id)
+            accounts += 1
+            idx += 1
+        logging.info('Total (%s) accounts detected.' % accounts)
+        assert accounts == 1
+
+        logging.info('Verifying summary footer.')
+        row = rows[idx]
+        assert is_footer(row)
+        assert [None, None, None, None, None] == row[1:]
+        idx += 1
+
+        logging.info('Skipping empty/padding row.')
+        row = rows[idx]
+        assert [None, None, None, None, None, None] == row
+        idx += 1
+
+        logging.info('Verifying statements header.')
+        row = rows[idx]
+        assert re.match('^Bokföringsdatum$', row[0])
+        assert re.match('^Valutadatum$', row[1])
+        assert re.match('^Verifikationsnummer$', row[2])
+        assert re.match('^Text / mottagare$', row[3])
+        assert re.match('^Belopp$', row[4])
+        assert re.match('^Saldo$', row[5])
+
+        logging.info('Everything is OK!')
 
     def parse_statement(self):
         statement = Statement()
