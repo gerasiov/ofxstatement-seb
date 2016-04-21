@@ -149,11 +149,12 @@ class SebStatementParser(StatementParser):
         #
         # P.S. Wirströms Irish Pub is our favorite pub in Stockholm.
         #
-        if self.clean:
-            m = re.match('(.*)/([0-9]{2}-[0-9]{2}-[0-9]{2})$', stmt_line.memo)
-            if m:
-                stmt_line.memo, date_string = m.groups()
-                stmt_line.date_user = datetime.strptime(date_string, '%y-%m-%d')
+        m = re.match('(.*)/([0-9]{2}-[0-9]{2}-[0-9]{2})$', stmt_line.memo)
+        if m:
+            card_memo, card_date = m.groups()
+            if self.clean:
+                stmt_line.memo = card_memo
+            stmt_line.date_user = datetime.strptime(card_date, '%y-%m-%d')
 
         stmt_line.id = generate_transaction_id(stmt_line)
         return stmt_line
