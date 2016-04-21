@@ -160,9 +160,18 @@ class SebStatementParser(StatementParser):
         return stmt_line
 
 
+def parse_bool(value):
+    if value in ('True', 'true', '1'):
+        return True
+    if value in ('False', 'false', '0'):
+        return False
+    raise ValueError("Can't parse boolean value: %s" % value)
+
+
 class SebPlugin(Plugin):
     def get_parser(self, fin):
         kwargs = {}
         if self.settings:
-            kwargs['brief'] = self.settings.get('brief', False)
+            if 'brief' in self.settings:
+                kwargs['brief'] = parse_bool(self.settings.get('brief'))
         return SebStatementParser(fin, **kwargs)
