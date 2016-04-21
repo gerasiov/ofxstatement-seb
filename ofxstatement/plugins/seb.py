@@ -83,7 +83,7 @@ class SebStatementParser(StatementParser):
         assert is_footer(summary_footer_row)
         assert [None, None, None, None, None] == summary_footer_row[1:]
 
-        logging.info('Skipping empty/padding row.')
+        logging.info('Verifying empty row.')
         empty_row = rows[3]
         assert [None, None, None, None, None, None] == empty_row
 
