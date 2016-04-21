@@ -60,7 +60,12 @@ class SebStatementParser(StatementParser):
         rows = take(5, sheet.iter_rows())
         assert len(rows) == 5
 
-        logging.info('Extracting values for every cell.')
+        logging.info('Verifying that every row has 6 cells.')
+        assert type(rows) == list
+        for row in rows:
+            assert len(row) == 6
+
+        logging.info('Extracting values from every cell.')
         rows = [[c.value for c in row] for row in rows]
 
         logging.info('Verifying summary header.')
