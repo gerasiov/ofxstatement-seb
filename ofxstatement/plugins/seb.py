@@ -23,16 +23,16 @@ class SebStatementParser(StatementParser):
     currency_id = 'SEK'
     header_regexp = '^Datum: ([0-9]{4}-[0-9]{2}-[0-9]{2}) - ([0-9]{4}-[0-9]{2}-[0-9]{2})$'
 
-    def __init__(self, fin, clean=False):
+    def __init__(self, fin, brief=False):
         """
         Create a new SebStatementParser instance.
 
         :param fin: filename to create parser for
-        :param clean: whenever to attempt to clean description
+        :param brief: whenever to attempt replace description with a brief version i.e. all extra info removed
         """
 
         self.workbook = load_workbook(filename=fin, read_only=True)
-        self.clean = clean
+        self.brief = brief
 
         self.validate()
         self.statement = self.parse_statement()
@@ -152,7 +152,7 @@ class SebStatementParser(StatementParser):
         m = re.match('(.*)/([0-9]{2}-[0-9]{2}-[0-9]{2})$', stmt_line.memo)
         if m:
             card_memo, card_date = m.groups()
-            if self.clean:
+            if self.brief:
                 stmt_line.memo = card_memo
             stmt_line.date_user = datetime.strptime(card_date, '%y-%m-%d')
 
