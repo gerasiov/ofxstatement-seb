@@ -89,12 +89,7 @@ class SebStatementParser(StatementParser):
 
         logging.info('Verifying statements header.')
         statement_header_row = rows[4]
-        assert re.match('^Bokföringsdatum$', statement_header_row[0])
-        assert re.match('^Valutadatum$', statement_header_row[1])
-        assert re.match('^Verifikationsnummer$', statement_header_row[2])
-        assert re.match('^Text / mottagare$', statement_header_row[3])
-        assert re.match('^Belopp$', statement_header_row[4])
-        assert re.match('^Saldo$', statement_header_row[5])
+        assert ['Bokföringsdatum', 'Valutadatum', 'Verifikationsnummer', 'Text / mottagare', 'Belopp', 'Saldo'] == statement_header_row
 
         logging.info('Everything is OK!')
 
