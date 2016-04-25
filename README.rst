@@ -22,6 +22,18 @@ Why? This way similar transactions will have similar descriptions and it will al
 group transactions using simple text grouping. Otherwise date suffixes will prevent this and
 make every transaction description unique.
 
+Locale
+======
+
+You can configure exact locale to use during parsing. Here is example how to configure it
+shown as default configuration you always have.
+
+.. code-block::
+
+    [default]
+    plugin = seb
+    locale = sv_SE
+
 Example
 =======
 
