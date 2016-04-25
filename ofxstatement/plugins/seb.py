@@ -3,10 +3,12 @@
 import re
 import itertools
 import logging
+import locale
 
 from datetime import datetime
 from openpyxl import load_workbook
 
+from contextlib import contextmanager
 from ofxstatement.parser import StatementParser
 from ofxstatement.plugin import Plugin
 from ofxstatement.statement import Statement, StatementLine, generate_transaction_id
@@ -15,6 +17,22 @@ from ofxstatement.statement import Statement, StatementLine, generate_transactio
 def take(n, iterable):
     """Return first n items of the iterable as a list."""
     return list(itertools.islice(iterable, n))
+
+
+@contextmanager
+def scoped_setlocale(category, loc=None):
+    """Scoped version of locale.setlocale()"""
+    orig = locale.getlocale(category)
+    try:
+        yield locale.setlocale(category, loc)
+    finally:
+        locale.setlocale(category, orig)
+
+
+def atof(string, loc=None):
+    """Locale aware atof function for our parser."""
+    with scoped_setlocale(locale.LC_NUMERIC, loc):
+        return locale.atof(string)
 
 
 class SebStatementParser(StatementParser):
@@ -26,7 +44,7 @@ class SebStatementParser(StatementParser):
         '^Datum: ([0-9]{4}-[0-9]{2}-[0-9]{2}) - ([0-9]{4}-[0-9]{2}-[0-9]{2})$'
     ]
 
-    def __init__(self, fin, brief=False):
+    def __init__(self, fin, locale=None, brief=False):
         """
         Create a new SebStatementParser instance.
 
@@ -34,10 +52,12 @@ class SebStatementParser(StatementParser):
         :param brief: whenever to attempt replace description with a brief version i.e. all extra info removed
         """
 
-        self.workbook = load_workbook(filename=fin, read_only=True)
+        self.locale = locale
         self.brief = brief
 
+        self.workbook = load_workbook(filename=fin, read_only=True)
         self.validate()
+
         self.statement = self.parse_statement()
 
     def validate(self):
@@ -112,7 +132,7 @@ class SebStatementParser(StatementParser):
 
         account_id, saldo, disponibelt_belopp, beviljad_kredit, _1, _2 = account_row
         statement.account_id = account_id
-        statement.end_balance = float(saldo)
+        statement.end_balance = atof(saldo, self.locale)
         statement.bank_id = self.bank_id
         statement.currency = self.currency_id
 
@@ -170,8 +190,12 @@ def parse_bool(value):
 
 class SebPlugin(Plugin):
     def get_parser(self, fin):
-        kwargs = {}
+        kwargs = {
+            'locale': 'sv_SE'
+        }
         if self.settings:
+            if 'locale' in self.settings:
+                kwargs['locale'] = parse_bool(self.settings.get('locale'))
             if 'brief' in self.settings:
                 kwargs['brief'] = parse_bool(self.settings.get('brief'))
         return SebStatementParser(fin, **kwargs)
